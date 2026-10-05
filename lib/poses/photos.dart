@@ -1,0 +1,70 @@
+// Généré par tool/gen_photos.dart : positions disponibles (0 = départ, 1 = fin) et crédits.
+const photoSets = <String, List<int>>{
+  'abwheel': [0, 1],
+  'archhold': [0, 1],
+  'assistedoap': [0, 1],
+  'australianpullup': [0, 1],
+  'backbend': [1],
+  'benchdips': [0, 1],
+  'boxjump': [0, 1],
+  'bridge': [1],
+  'broadjump': [0, 1],
+  'chinup': [0, 1],
+  'clappushup': [0, 1],
+  'declinepushup': [0, 1],
+  'diamondpushup': [0, 1],
+  'dips': [0, 1],
+  'fullbl': [1],
+  'fullfl': [1],
+  'fullpl': [1],
+  'glutebridge': [0, 1],
+  'handstand': [1],
+  'hanglegraise': [0, 1],
+  'hspu': [0, 1],
+  'humanflag': [1],
+  'jumpsquat': [0, 1],
+  'lsit': [1],
+  'lunges': [0, 1],
+  'muscleup': [1],
+  'neutralpullup': [0, 1],
+  'nordic': [0, 1],
+  'oahs': [1],
+  'oapushup': [0, 1],
+  'pistol': [1],
+  'plank': [0, 1],
+  'pullup': [0, 1],
+  'pushup': [0, 1],
+  'shoulderstand': [1],
+  'sideplank': [0, 1],
+  'skatersquat': [0, 1],
+  'splitjump': [0, 1],
+  'squat': [0, 1],
+  'straddlepl': [1],
+  'toestobar': [0, 1],
+  'widepushup': [0, 1],
+};
+
+/// Mouvements qui réutilisent les photos d’un autre.
+const photoAlias = {'strictmu': 'muscleup', 'barmu': 'muscleup', 'freehs': 'handstand'};
+
+const _freeDb = 'free-exercise-db · domaine public';
+
+const photoCredits = <String, String>{
+  'backbend_1': 'Satheesan.vn · CC BY-SA 3.0 · Wikimedia Commons',
+  'bridge_1': 'Perzonseo Webbyra · CC BY 2.0 · Wikimedia Commons',
+  'fullbl_1': 'Ondra7575 · CC BY-SA 4.0 · Wikimedia Commons',
+  'fullfl_1': 'Simon Höger · CC BY 4.0 · Wikimedia Commons',
+  'fullpl_1': 'Jonathanfv · CC BY 3.0 · Wikimedia Commons',
+  'handstand_1': 'Digital Rye · CC0 · Wikimedia Commons',
+  'humanflag_1': 'Daniel Kaiser · CC BY-SA 3.0 · Wikimedia Commons',
+  'lsit_1': 'BandiSW · CC BY-SA 4.0 · Wikimedia Commons',
+  'muscleup_1': 'Maksim Sokolov (maxergon.com) · CC BY-SA 4.0 · Wikimedia Commons',
+  'oahs_1': 'Jonathanfv · CC BY 3.0 · Wikimedia Commons',
+  'pistol_1': 'Jgcastor · CC BY-SA 3.0 · Wikimedia Commons',
+  'shoulderstand_1': 'Mr. Yoga · CC BY-SA 4.0 · Wikimedia Commons',
+  'skatersquat_0': 'RickyBennison · CC BY-SA 4.0 · Wikimedia Commons',
+  'skatersquat_1': 'RickyBennison · CC BY-SA 4.0 · Wikimedia Commons',
+  'straddlepl_1': 'CmdCourgette · CC BY-SA 4.0 · Wikimedia Commons',
+};
+
+String creditOf(String key) => photoCredits[key] ?? _freeDb;

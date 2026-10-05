@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../poses/library.dart';
+import '../poses/photos.dart';
 import '../poses/skeleton.dart';
 import '../theme.dart';
 
@@ -211,23 +212,26 @@ class _MoveAnimationState extends State<MoveAnimation> with SingleTickerProvider
   }
 }
 
-// ───────────── Photos réelles (free-exercise-db, domaine public) ─────────────
+// ───────────── Photos réelles (free-exercise-db, Wikimedia Commons) ─────────────
 
-const photoMoves = {
-  'abwheel', 'archhold', 'assistedoap', 'australianpullup', 'benchdips', 'boxjump', 'broadjump', 'chinup',
-  'clappushup', 'declinepushup', 'diamondpushup', 'dips', 'glutebridge', 'hanglegraise', 'hspu', 'jumpsquat',
-  'lunges', 'neutralpullup', 'nordic', 'oapushup', 'plank', 'pullup', 'pushup', 'sideplank', 'splitjump',
-  'squat', 'toestobar', 'widepushup',
-};
+String _photoId(String id) => photoAlias[id] ?? id;
 
-const photoCredit = 'Photos : free-exercise-db (domaine public)';
+bool hasPhotos(String id) => photoSets.containsKey(_photoId(id));
 
-bool hasPhotos(String id) => photoMoves.contains(id);
-String photoPath(String id, int i) => 'assets/photos/${id}_$i.jpg';
+/// Chemin de la photo de départ (0) ou de fin (1), si elle existe.
+String? photoKey(String id, int which) {
+  final pid = _photoId(id);
+  return (photoSets[pid]?.contains(which) ?? false) ? '${pid}_$which' : null;
+}
+
+String photoPath(String key) => 'assets/photos/$key.jpg';
+
+/// La photo la plus représentative : la fin, sinon le départ.
+String? bestPhoto(String id) => photoKey(id, 1) ?? photoKey(id, 0);
 
 class _Photo extends StatelessWidget {
-  const _Photo(this.path, {this.radius = 14});
-  final String path;
+  const _Photo(this.keyName, {this.radius = 14});
+  final String keyName;
   final double radius;
 
   @override
@@ -235,12 +239,27 @@ class _Photo extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         child: AspectRatio(
           aspectRatio: 1.5,
-          child: Image.asset(path, fit: BoxFit.cover, cacheWidth: 900),
+          child: Stack(fit: StackFit.expand, children: [
+            Image.asset(photoPath(keyName), fit: BoxFit.cover, cacheWidth: 900),
+            Positioned(right: 6, bottom: 4, child: _Credit(keyName)),
+          ]),
         ),
       );
 }
 
-/// Vignette d'un mouvement : photo de fin si elle existe, sinon le dessin.
+class _Credit extends StatelessWidget {
+  const _Credit(this.keyName);
+  final String keyName;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+        decoration: BoxDecoration(color: C.bg.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(4)),
+        child: Text(creditOf(keyName), style: body(8.5, color: Colors.white70)),
+      );
+}
+
+/// Vignette d'un mouvement : photo si elle existe, sinon le dessin cadré sur la position finale.
 class MoveThumb extends StatelessWidget {
   const MoveThumb({super.key, required this.move, required this.color, this.radius = 10});
   final Move move;
@@ -249,12 +268,13 @@ class MoveThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (hasPhotos(move.id)) {
+    final photo = bestPhoto(move.id);
+    if (photo != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: AspectRatio(
           aspectRatio: 1.25,
-          child: Image.asset(photoPath(move.id, 1), fit: BoxFit.cover, cacheWidth: 300),
+          child: Image.asset(photoPath(photo), fit: BoxFit.cover, cacheWidth: 300),
         ),
       );
     }
@@ -274,7 +294,7 @@ class MoveThumb extends StatelessWidget {
 
 final Map<String, Frame> _thumbFrames = {};
 
-/// Image d'une position clé : photo pour le départ et la fin quand on en a.
+/// Image d'une position clé : photo pour le départ et la fin quand on en a, dessin sinon.
 class PhaseImage extends StatelessWidget {
   const PhaseImage({super.key, required this.move, required this.phase, required this.color});
   final Move move;
@@ -284,14 +304,13 @@ class PhaseImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final last = move.phases.length - 1;
-    if (hasPhotos(move.id) && (phase == 0 || phase == last)) {
-      return _Photo(photoPath(move.id, phase == 0 ? 0 : 1), radius: 12);
-    }
+    final key = phase == 0 ? photoKey(move.id, 0) : (phase == last ? photoKey(move.id, 1) : null);
+    if (key != null) return _Photo(key, radius: 12);
     return PoseImage(move: move, phase: phase, color: color, radius: 12);
   }
 }
 
-/// Boucle photo : départ ↔ fin en fondu.
+/// Photo(s) réelle(s) : fondu départ ↔ fin quand les deux existent, sinon la photo de fin.
 class PhotoLoop extends StatefulWidget {
   const PhotoLoop({super.key, required this.move, required this.color});
   final Move move;
@@ -302,15 +321,24 @@ class PhotoLoop extends StatefulWidget {
 }
 
 class _PhotoLoopState extends State<PhotoLoop> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 3200))..repeat();
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 3200));
   bool _playing = true;
+
+  String? get _a => photoKey(widget.move.id, 0);
+  String? get _b => photoKey(widget.move.id, 1);
+  bool get _loop => _a != null && _b != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_loop) _c.repeat();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    for (var i = 0; i < 2; i++) {
-      precacheImage(AssetImage(photoPath(widget.move.id, i)), context);
+    for (final k in [_a, _b]) {
+      if (k != null) precacheImage(AssetImage(photoPath(k)), context);
     }
   }
 
@@ -320,9 +348,29 @@ class _PhotoLoopState extends State<PhotoLoop> with SingleTickerProviderStateMix
     super.dispose();
   }
 
+  Widget _tag(String label) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(color: C.bg.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(8)),
+        child: Text(label.toUpperCase(), style: eyebrow(widget.color)),
+      );
+
   @override
   Widget build(BuildContext context) {
-    final last = widget.move.phases.length - 1;
+    final phases = widget.move.phases;
+    if (!_loop) {
+      final k = (_b ?? _a)!;
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: AspectRatio(
+          aspectRatio: 1.5,
+          child: Stack(fit: StackFit.expand, children: [
+            Image.asset(photoPath(k), fit: BoxFit.cover, cacheWidth: 900),
+            Positioned(left: 10, top: 10, child: _tag(_b != null ? phases.last.label : phases.first.label)),
+            Positioned(right: 8, bottom: 6, child: _Credit(k)),
+          ]),
+        ),
+      );
+    }
     return GestureDetector(
       onTap: () {
         setState(() => _playing = !_playing);
@@ -344,30 +392,22 @@ class _PhotoLoopState extends State<PhotoLoop> with SingleTickerProviderStateMix
                       : v < 0.9
                           ? 1
                           : 1 - (v - 0.9) / 0.1;
-              final label = widget.move.phases[t < 0.5 ? 0 : last].label;
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(photoPath(widget.move.id, 0), fit: BoxFit.cover, cacheWidth: 900),
+                  Image.asset(photoPath(_a!), fit: BoxFit.cover, cacheWidth: 900),
                   Opacity(
                     opacity: Curves.easeInOut.transform(t),
-                    child: Image.asset(photoPath(widget.move.id, 1), fit: BoxFit.cover, cacheWidth: 900),
+                    child: Image.asset(photoPath(_b!), fit: BoxFit.cover, cacheWidth: 900),
                   ),
-                  Positioned(
-                    left: 10,
-                    top: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: C.bg.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(8)),
-                      child: Text(label.toUpperCase(), style: eyebrow(widget.color)),
-                    ),
-                  ),
+                  Positioned(left: 10, top: 10, child: _tag(t < 0.5 ? phases.first.label : phases.last.label)),
                   Positioned(
                     right: 8,
                     top: 8,
                     child: Icon(_playing ? Icons.pause_circle_filled : Icons.play_circle_filled,
                         color: Colors.white70, size: 24),
                   ),
+                  Positioned(right: 8, bottom: 6, child: _Credit(t < 0.5 ? _a! : _b!)),
                 ],
               );
             },
