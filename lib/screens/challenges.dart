@@ -347,7 +347,7 @@ class _DiscoverItem extends StatelessWidget {
               const SizedBox(height: 4),
               Text(def.name.toUpperCase(), style: display(34, height: 1)),
               const SizedBox(height: 14),
-              SizedBox(height: 180, child: Center(child: MoveAnimation(move: moveById[def.move]!, color: s.accent))),
+              SizedBox(height: 180, child: Center(child: hasPhotos(def.move) ? PhotoLoop(move: moveById[def.move]!, color: s.accent) : MoveAnimation(move: moveById[def.move]!, color: s.accent))),
               const SizedBox(height: 14),
               Text(
                 'Six paliers jusqu’à ${def.fmtUnit(def.target)} : ${def.paliers.join(' · ')}. '

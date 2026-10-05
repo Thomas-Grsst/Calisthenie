@@ -210,3 +210,158 @@ class _MoveAnimationState extends State<MoveAnimation> with SingleTickerProvider
     );
   }
 }
+
+// ───────────── Photos réelles (free-exercise-db, domaine public) ─────────────
+
+const photoMoves = {
+  'abwheel', 'archhold', 'assistedoap', 'australianpullup', 'benchdips', 'boxjump', 'broadjump', 'chinup',
+  'clappushup', 'declinepushup', 'diamondpushup', 'dips', 'glutebridge', 'hanglegraise', 'hspu', 'jumpsquat',
+  'lunges', 'neutralpullup', 'nordic', 'oapushup', 'plank', 'pullup', 'pushup', 'sideplank', 'splitjump',
+  'squat', 'toestobar', 'widepushup',
+};
+
+const photoCredit = 'Photos : free-exercise-db (domaine public)';
+
+bool hasPhotos(String id) => photoMoves.contains(id);
+String photoPath(String id, int i) => 'assets/photos/${id}_$i.jpg';
+
+class _Photo extends StatelessWidget {
+  const _Photo(this.path, {this.radius = 14});
+  final String path;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: AspectRatio(
+          aspectRatio: 1.5,
+          child: Image.asset(path, fit: BoxFit.cover, cacheWidth: 900),
+        ),
+      );
+}
+
+/// Vignette d'un mouvement : photo de fin si elle existe, sinon le dessin.
+class MoveThumb extends StatelessWidget {
+  const MoveThumb({super.key, required this.move, required this.color, this.radius = 10});
+  final Move move;
+  final Color color;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    if (hasPhotos(move.id)) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: AspectRatio(
+          aspectRatio: 1.25,
+          child: Image.asset(photoPath(move.id, 1), fit: BoxFit.cover, cacheWidth: 300),
+        ),
+      );
+    }
+    return PoseImage(move: move, phase: move.phases.length - 1, color: color, radius: radius);
+  }
+}
+
+/// Image d'une position clé : photo pour le départ et la fin quand on en a.
+class PhaseImage extends StatelessWidget {
+  const PhaseImage({super.key, required this.move, required this.phase, required this.color});
+  final Move move;
+  final int phase;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final last = move.phases.length - 1;
+    if (hasPhotos(move.id) && (phase == 0 || phase == last)) {
+      return _Photo(photoPath(move.id, phase == 0 ? 0 : 1), radius: 12);
+    }
+    return PoseImage(move: move, phase: phase, color: color, radius: 12);
+  }
+}
+
+/// Boucle photo : départ ↔ fin en fondu.
+class PhotoLoop extends StatefulWidget {
+  const PhotoLoop({super.key, required this.move, required this.color});
+  final Move move;
+  final Color color;
+
+  @override
+  State<PhotoLoop> createState() => _PhotoLoopState();
+}
+
+class _PhotoLoopState extends State<PhotoLoop> with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 3200))..repeat();
+  bool _playing = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    for (var i = 0; i < 2; i++) {
+      precacheImage(AssetImage(photoPath(widget.move.id, i)), context);
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final last = widget.move.phases.length - 1;
+    return GestureDetector(
+      onTap: () {
+        setState(() => _playing = !_playing);
+        _playing ? _c.repeat() : _c.stop();
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: AspectRatio(
+          aspectRatio: 1.5,
+          child: AnimatedBuilder(
+            animation: _c,
+            builder: (context, _) {
+              // 0–0.4 départ, 0.4–0.5 fondu, 0.5–0.9 fin, 0.9–1 fondu retour.
+              final v = _c.value;
+              final double t = v < 0.4
+                  ? 0
+                  : v < 0.5
+                      ? (v - 0.4) / 0.1
+                      : v < 0.9
+                          ? 1
+                          : 1 - (v - 0.9) / 0.1;
+              final label = widget.move.phases[t < 0.5 ? 0 : last].label;
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(photoPath(widget.move.id, 0), fit: BoxFit.cover, cacheWidth: 900),
+                  Opacity(
+                    opacity: Curves.easeInOut.transform(t),
+                    child: Image.asset(photoPath(widget.move.id, 1), fit: BoxFit.cover, cacheWidth: 900),
+                  ),
+                  Positioned(
+                    left: 10,
+                    top: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: C.bg.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(8)),
+                      child: Text(label.toUpperCase(), style: eyebrow(widget.color)),
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Icon(_playing ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                        color: Colors.white70, size: 24),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}

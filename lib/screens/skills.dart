@@ -164,7 +164,7 @@ class _MoveTile extends StatelessWidget {
         children: [
           SizedBox(
             width: 92,
-            child: PoseImage(move: move, phase: move.phases.length - 1, color: accent, radius: 10),
+            child: MoveThumb(move: move, color: accent),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -228,11 +228,7 @@ class _SkillCard extends StatelessWidget {
         children: [
           SizedBox(
             width: 96,
-            child: PoseImage(
-                move: finalMove,
-                phase: finalMove.phases.length - 1,
-                color: done ? C.gold : state.accent,
-                radius: 12),
+            child: MoveThumb(move: finalMove, color: done ? C.gold : state.accent, radius: 12),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -311,8 +307,7 @@ class SkillScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  MoveAnimation(
-                      key: ValueKey(current.move), move: moveById[current.move]!, color: done ? C.gold : accent),
+                  MoveViewer(key: ValueKey(current.move), move: moveById[current.move]!, color: done ? C.gold : accent),
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -479,11 +474,7 @@ class _StepRow extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: 72,
-                      child: PoseImage(
-                          move: move,
-                          phase: move.phases.length - 1,
-                          color: st == 'next' ? C.muted2 : accent,
-                          radius: 8),
+                      child: MoveThumb(move: move, color: st == 'next' ? C.muted2 : accent, radius: 8),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -531,9 +522,7 @@ class MoveScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            MoveAnimation(move: move, color: accent),
-            const SizedBox(height: 6),
-            Center(child: Text('Touche l’animation pour la mettre en pause', style: body(11, color: C.muted2))),
+            MoveViewer(move: move, color: accent),
             const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -566,7 +555,7 @@ class MoveScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    PoseImage(move: move, phase: i, color: accent, radius: 12),
+                    PhaseImage(move: move, phase: i, color: accent),
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -603,6 +592,51 @@ class MoveScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Visionneuse : photos réelles quand elles existent (avec bascule vers le schéma animé).
+class MoveViewer extends StatefulWidget {
+  const MoveViewer({super.key, required this.move, required this.color});
+  final Move move;
+  final Color color;
+
+  @override
+  State<MoveViewer> createState() => _MoveViewerState();
+}
+
+class _MoveViewerState extends State<MoveViewer> {
+  late bool _photo = hasPhotos(widget.move.id);
+
+  @override
+  Widget build(BuildContext context) {
+    final photos = hasPhotos(widget.move.id);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _photo
+            ? PhotoLoop(move: widget.move, color: widget.color)
+            : MoveAnimation(move: widget.move, color: widget.color),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                _photo ? photoCredit : 'Touche l’animation pour la mettre en pause',
+                style: body(11, color: C.muted2),
+              ),
+            ),
+            if (photos)
+              TextButton.icon(
+                onPressed: () => setState(() => _photo = !_photo),
+                icon: Icon(_photo ? Icons.gesture : Icons.photo_outlined, size: 16, color: widget.color),
+                label: Text(_photo ? 'Voir le schéma' : 'Voir les photos',
+                    style: body(12, color: widget.color, weight: FontWeight.w700)),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
