@@ -284,7 +284,7 @@ class Frame {
   const Frame(this.left, this.top, this.width, this.height);
   final double left, top, width, height;
 
-  factory Frame.fit(List<Skel> skels, {double aspect = 1.25}) {
+  factory Frame.fit(List<Skel> skels, {double? aspect}) {
     var x0 = double.infinity, y0 = double.infinity, x1 = -double.infinity, y1 = -double.infinity;
     void add(V v) {
       x0 = m.min(x0, v.x);
@@ -320,10 +320,11 @@ class Frame {
     w += pad * 2;
     h += pad * 2;
     var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    if (w / h > aspect) {
-      h = w / aspect;
+    final asp = aspect ?? (w / h).clamp(1.0, 1.7);
+    if (w / h > asp) {
+      h = w / asp;
     } else {
-      w = h * aspect;
+      w = h * asp;
     }
     if (hasFloor) {
       // Le sol reste près du bas du cadre.

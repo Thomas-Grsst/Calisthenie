@@ -623,7 +623,7 @@ class _MoveViewerState extends State<MoveViewer> {
           children: [
             Expanded(
               child: Text(
-                _photo ? 'Photo réelle' : 'Touche l’animation pour la mettre en pause',
+                _photo ? 'Photo réelle' : 'Illustration animée · touche pour mettre en pause',
                 style: body(11, color: C.muted2),
               ),
             ),
