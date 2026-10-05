@@ -461,6 +461,11 @@ class AppState extends ChangeNotifier {
           TrophyDef('c:${c.id}', c.short, 'Défi « ${c.name} » relevé.', false, c.id),
       ];
 
+  String trophyMove(String id) {
+    final d = trophyDef(id);
+    return d.isSkill ? skillDef(d.sourceId).steps.last.move : challengeDef(d.sourceId).move;
+  }
+
   TrophyDef trophyDef(String id) => trophyDefs.firstWhere((t) => t.id == id);
 
   List<Trophy> get unlockedSorted =>

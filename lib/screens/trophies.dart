@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../data.dart';
+import '../poses/library.dart';
 import '../theme.dart';
+import '../widgets/pose_view.dart';
 import 'skills.dart';
 
 class TrophiesScreen extends StatelessWidget {
@@ -311,6 +313,11 @@ class _TrophyScreenState extends State<TrophyScreen> {
             Text(def.name.toUpperCase(), textAlign: TextAlign.center, style: display(58, height: 0.9)),
             const SizedBox(height: 6),
             Text(def.desc, textAlign: TextAlign.center, style: body(15, color: const Color(0xFFC9C6BD))),
+            const SizedBox(height: 18),
+            GestureDetector(
+              onTap: () => openMove(context, s.trophyMove(t.id)),
+              child: Center(child: SizedBox(height: 190, child: MoveThumb(move: moveById[s.trophyMove(t.id)]!, color: C.gold, radius: 16))),
+            ),
             const SizedBox(height: 22),
             Container(
               decoration: BoxDecoration(

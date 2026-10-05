@@ -258,9 +258,21 @@ class MoveThumb extends StatelessWidget {
         ),
       );
     }
-    return PoseImage(move: move, phase: move.phases.length - 1, color: color, radius: radius);
+    final f = _thumbFrames.putIfAbsent(move.id, () => Frame.fit([move.phases.last.pose.skel]));
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: ColoredBox(
+        color: C.surface2,
+        child: AspectRatio(
+          aspectRatio: 1.25,
+          child: CustomPaint(painter: PosePainter(move.phases.last.pose.skel, f, color)),
+        ),
+      ),
+    );
   }
 }
+
+final Map<String, Frame> _thumbFrames = {};
 
 /// Image d'une position clé : photo pour le départ et la fin quand on en a.
 class PhaseImage extends StatelessWidget {

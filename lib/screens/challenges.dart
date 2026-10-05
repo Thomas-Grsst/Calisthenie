@@ -4,6 +4,7 @@ import '../data.dart';
 import '../poses/library.dart';
 import '../theme.dart';
 import '../widgets/pose_view.dart';
+import 'skills.dart';
 import 'trophies.dart';
 
 class ChallengesScreen extends StatefulWidget {
@@ -121,6 +122,15 @@ class ActiveChallengeCard extends StatelessWidget {
                     Text('DÉFI EN COURS · SANS DATE LIMITE', style: eyebrow(s.accent)),
                     const SizedBox(height: 4),
                     Text(def.name.toUpperCase(), style: display(30, height: 1)),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () => openMove(context, def.move),
+                      child: Row(children: [
+                        SizedBox(width: 120, child: MoveThumb(move: moveById[def.move]!, color: s.accent, radius: 12)),
+                        const SizedBox(width: 10),
+                        Text('Voir le mouvement →', style: body(13, color: C.muted, weight: FontWeight.w600)),
+                      ]),
+                    ),
                   ],
                 ),
               ),
@@ -307,13 +317,7 @@ class _DiscoverItem extends StatelessWidget {
       onTap: () => _openDetails(context, s),
       child: Row(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: C.surface2, borderRadius: BorderRadius.circular(12)),
-            child: Text(def.tag, style: display(18, color: s.accent)),
-          ),
+          SizedBox(width: 80, child: MoveThumb(move: moveById[def.move]!, color: s.accent, radius: 10)),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -392,6 +396,8 @@ class _DoneItem extends StatelessWidget {
             decoration: BoxDecoration(color: C.gold, borderRadius: BorderRadius.circular(12)),
             child: const Icon(Icons.emoji_events_outlined, color: C.goldInk),
           ),
+          const SizedBox(width: 10),
+          SizedBox(width: 72, child: MoveThumb(move: moveById[def.move]!, color: C.gold, radius: 10)),
           const SizedBox(width: 14),
           Expanded(
             child: Column(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../data.dart';
+import '../poses/library.dart';
 import '../theme.dart';
+import '../widgets/pose_view.dart';
 import 'skills.dart';
 import 'trophies.dart';
 
@@ -225,7 +227,14 @@ class _CurrentChallengeCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(def.name.toUpperCase(), style: display(40, color: C.bg, height: 0.95)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(child: Text(def.name.toUpperCase(), style: display(40, color: C.bg, height: 0.95))),
+              const SizedBox(width: 10),
+              SizedBox(width: 110, child: MoveThumb(move: moveById[def.move]!, color: s.accent, radius: 12)),
+            ],
+          ),
           const SizedBox(height: 12),
           Bar(
             value: p.record / def.target,
@@ -292,6 +301,8 @@ class _SkillMini extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          MoveThumb(move: moveById[skill.steps[s.stepOf(skill.id)].move]!, color: s.accent, radius: 10),
+          const SizedBox(height: 10),
           Text('$pct%', style: display(30)),
           const SizedBox(height: 8),
           Bar(value: pct / 100, color: s.accent),
