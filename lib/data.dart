@@ -3,13 +3,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'poses/library.dart';
+
 const accentOptions = [Color(0xFFC8F03C), Color(0xFFFF7A3D), Color(0xFF5AA9FF)];
 const accentNames = ['Craie', 'Orange', 'Bleu'];
 
 class StepDef {
-  const StepDef(this.name, this.goal);
-  final String name;
+  const StepDef(this.move, this.goal, [this.name]);
+  final String move;
   final String goal;
+  final String? name;
 }
 
 class SkillDef {
@@ -17,12 +20,14 @@ class SkillDef {
     required this.id,
     required this.name,
     required this.level,
+    required this.wow,
     required this.equipment,
     required this.muscles,
     required this.trophyDesc,
     required this.steps,
   });
   final String id, name, level, equipment, muscles, trophyDesc;
+  final int wow;
   final List<StepDef> steps;
 }
 
@@ -36,8 +41,9 @@ class ChallengeDef {
     required this.level,
     required this.target,
     required this.unit,
+    required this.move,
   });
-  final String id, name, short, category, tag, unit;
+  final String id, name, short, category, tag, unit, move;
   final int level, target;
 
   bool get timed => unit == 's';
@@ -50,104 +56,174 @@ const skillCatalog = [
   SkillDef(
     id: 'muscleup',
     name: 'Muscle-up',
-    level: 'Avancé',
+    level: 'Intermédiaire',
+    wow: 5,
     equipment: 'Barre fixe',
     muscles: 'Dos · Triceps',
     trophyDesc: 'Ton tout premier, strict, à la barre fixe.',
     steps: [
-      StepDef('Tractions explosives', '3 × 6 reps'),
-      StepDef('Tractions poitrine à la barre', '3 × 5 reps'),
-      StepDef('Transition en négatif', '4 × 3 reps lentes'),
-      StepDef('Muscle-up avec élastique', '3 × 3 reps'),
-      StepDef('Muscle-up strict', '1 rep propre'),
+      StepDef('pullup', '3 × 10 tractions'),
+      StepDef('dips', '3 × 15 dips'),
+      StepDef('kippingmu', '3 × 2 avec élan'),
+      StepDef('falsegripmu', '3 × 2 en false grip'),
+      StepDef('strictmu', '1 muscle-up strict'),
     ],
   ),
   SkillDef(
     id: 'handstand',
     name: 'Handstand',
     level: 'Intermédiaire',
-    equipment: 'Sol',
+    wow: 4,
+    equipment: 'Sol · Mur',
     muscles: 'Épaules · Gainage',
-    trophyDesc: 'Dix secondes en équilibre, sans le mur.',
+    trophyDesc: 'Trente secondes en équilibre, sans le mur.',
     steps: [
-      StepDef('Pike hold', '3 × 30 s'),
-      StepDef('Handstand face au mur', '3 × 30 s'),
-      StepDef('Kick-up contrôlé', '5 entrées propres'),
-      StepDef('Handstand libre', 'Tenir 5 s'),
-      StepDef('Handstand libre 10 s', 'Tenir 10 s'),
+      StepDef('wallhs', '3 × 45 s au mur'),
+      StepDef('hsshouldertaps', '3 × 10 touches'),
+      StepDef('handstand', 'Kick-up + 5 s'),
+      StepDef('freehs', 'Tenir 15 s'),
+      StepDef('freehs', 'Tenir 30 s', 'Handstand libre 30 s'),
+    ],
+  ),
+  SkillDef(
+    id: 'hspu',
+    name: 'Handstand push-up',
+    level: 'Avancé',
+    wow: 5,
+    equipment: 'Sol · Mur · Box',
+    muscles: 'Épaules · Triceps',
+    trophyDesc: 'Une pompe complète tête en bas.',
+    steps: [
+      StepDef('pikepushup', '3 × 12'),
+      StepDef('pikehspu', '3 × 8 pieds sur la box'),
+      StepDef('wallhs', '3 × 60 s au mur'),
+      StepDef('hspu', '3 × 3 au mur', 'HSPU au mur'),
+      StepDef('hspu', '5 répétitions', 'HSPU complet'),
     ],
   ),
   SkillDef(
     id: 'frontlever',
     name: 'Front lever',
     level: 'Avancé',
+    wow: 5,
     equipment: 'Barre fixe',
     muscles: 'Dos · Abdos',
-    trophyDesc: 'Le corps à l’horizontale, bras tendus.',
+    trophyDesc: 'Le corps à l’horizontale, bras tendus, face au ciel.',
     steps: [
-      StepDef('Tuck front lever', '3 × 10 s'),
-      StepDef('Advanced tuck', '3 × 10 s'),
-      StepDef('Front lever une jambe', '3 × 8 s'),
-      StepDef('Straddle front lever', '3 × 5 s'),
-      StepDef('Front lever complet', 'Tenir 3 s'),
-    ],
-  ),
-  SkillDef(
-    id: 'pistol',
-    name: 'Pistol squat',
-    level: 'Intermédiaire',
-    equipment: 'Sol',
-    muscles: 'Jambes · Équilibre',
-    trophyDesc: 'Une jambe, jusqu’en bas, et on remonte.',
-    steps: [
-      StepDef('Squat bulgare', '3 × 10 reps / jambe'),
-      StepDef('Pistol assisté (poteau)', '3 × 6 reps / jambe'),
-      StepDef('Pistol sur une box', '3 × 5 reps / jambe'),
-      StepDef('Descente en négatif', '3 × 3 reps lentes'),
-      StepDef('Pistol squat complet', '1 rep / jambe'),
-    ],
-  ),
-  SkillDef(
-    id: 'planche',
-    name: 'Planche',
-    level: 'Expert',
-    equipment: 'Sol · Parallettes',
-    muscles: 'Épaules · Gainage',
-    trophyDesc: 'Le corps à l’horizontale, en appui sur les mains.',
-    steps: [
-      StepDef('Planche lean', '3 × 20 s'),
-      StepDef('Tuck planche', '3 × 8 s'),
-      StepDef('Advanced tuck planche', '3 × 6 s'),
-      StepDef('Straddle planche', '3 × 4 s'),
-      StepDef('Full planche', 'Tenir 2 s'),
+      StepDef('tuckfl', '3 × 10 s'),
+      StepDef('advtuckfl', '3 × 10 s'),
+      StepDef('onelegfl', '3 × 8 s'),
+      StepDef('straddlefl', '3 × 5 s'),
+      StepDef('fullfl', 'Tenir 5 s'),
     ],
   ),
   SkillDef(
     id: 'humanflag',
     name: 'Human flag',
-    level: 'Expert',
+    level: 'Avancé',
+    wow: 5,
     equipment: 'Poteau · Espalier',
     muscles: 'Obliques · Épaules',
     trophyDesc: 'Le drapeau humain, à l’horizontale sur le poteau.',
     steps: [
-      StepDef('Support vertical', '3 × 15 s'),
-      StepDef('Tuck flag', '3 × 5 s'),
-      StepDef('Flag une jambe', '3 × 4 s'),
-      StepDef('Straddle flag', '3 × 3 s'),
-      StepDef('Human flag complet', 'Tenir 3 s'),
+      StepDef('sideplank', '3 × 60 s par côté'),
+      StepDef('tuckflag', '3 × 5 s'),
+      StepDef('straddleflag', '3 × 4 s'),
+      StepDef('flagraises', '3 × 3 montées'),
+      StepDef('humanflag', 'Tenir 5 s'),
+    ],
+  ),
+  SkillDef(
+    id: 'backlever',
+    name: 'Back lever',
+    level: 'Intermédiaire / avancé',
+    wow: 4,
+    equipment: 'Barre · Anneaux',
+    muscles: 'Épaules · Dos · Biceps',
+    trophyDesc: 'Horizontal, face au sol, bras tendus derrière toi.',
+    steps: [
+      StepDef('skinthecat', '3 × 3 lents'),
+      StepDef('tuckbl', '3 × 10 s'),
+      StepDef('advtuckbl', '3 × 10 s'),
+      StepDef('straddlebl', '3 × 6 s'),
+      StepDef('fullbl', 'Tenir 5 s'),
+    ],
+  ),
+  SkillDef(
+    id: 'lsit',
+    name: 'L-sit',
+    level: 'Débutant / intermédiaire',
+    wow: 3,
+    equipment: 'Parallettes · Sol',
+    muscles: 'Abdos · Fléchisseurs · Triceps',
+    trophyDesc: 'L’équerre parfaite, jambes tendues.',
+    steps: [
+      StepDef('hollow', '3 × 30 s'),
+      StepDef('compression', '3 × 10 s'),
+      StepDef('tucklsit', '3 × 15 s'),
+      StepDef('lsit', 'Tenir 10 s', 'L-sit 10 s'),
+      StepDef('lsit', 'Tenir 20 s', 'L-sit 20 s'),
+    ],
+  ),
+  SkillDef(
+    id: 'vsit',
+    name: 'V-sit',
+    level: 'Avancé',
+    wow: 4,
+    equipment: 'Sol · Parallettes',
+    muscles: 'Compression · Épaules',
+    trophyDesc: 'Les jambes au-dessus de l’horizontale, en V.',
+    steps: [
+      StepDef('lsit', 'Tenir 30 s', 'L-sit 30 s'),
+      StepDef('compression', '3 × 15 s'),
+      StepDef('pancake', '3 × 60 s de mobilité'),
+      StepDef('vsit', 'Tenir 3 s', 'V-sit 3 s'),
+      StepDef('vsit', 'Tenir 10 s', 'V-sit 10 s'),
+    ],
+  ),
+  SkillDef(
+    id: 'planche',
+    name: 'Planche',
+    level: 'Très avancé',
+    wow: 5,
+    equipment: 'Sol · Parallettes',
+    muscles: 'Épaules · Gainage',
+    trophyDesc: 'Le corps à l’horizontale, en appui sur les mains.',
+    steps: [
+      StepDef('planchelean', '3 × 30 s'),
+      StepDef('tuckpl', '3 × 10 s'),
+      StepDef('advtuckpl', '3 × 8 s'),
+      StepDef('straddlepl', '3 × 4 s'),
+      StepDef('fullpl', 'Tenir 3 s'),
+    ],
+  ),
+  SkillDef(
+    id: 'oap',
+    name: 'One-arm pull-up',
+    level: 'Très avancé',
+    wow: 5,
+    equipment: 'Barre fixe · Sangle',
+    muscles: 'Dos · Biceps · Avant-bras',
+    trophyDesc: 'Le menton au-dessus de la barre, un seul bras.',
+    steps: [
+      StepDef('pullup', '3 × 15 tractions'),
+      StepDef('archerpullup', '3 × 5 par côté'),
+      StepDef('assistedoap', '3 × 3 par côté'),
+      StepDef('oachinup', '1 par côté'),
+      StepDef('oap', '1 par côté'),
     ],
   ),
 ];
 
 const challengeCatalog = [
-  ChallengeDef(id: 'tractions15', name: '15 tractions d’affilée', short: '15 tractions', category: 'Barre fixe', tag: '15', level: 2, target: 15, unit: 'reps'),
-  ChallengeDef(id: 'gainage60', name: 'Tenir 1 min en gainage', short: 'Gainage 1 min', category: 'Gainage', tag: '1:00', level: 1, target: 60, unit: 's'),
-  ChallengeDef(id: 'lsit20', name: 'Tenir 20 s en L-sit', short: 'L-sit 20 s', category: 'Barres parallèles', tag: 'L-sit', level: 2, target: 20, unit: 's'),
-  ChallengeDef(id: 'pompes50', name: '50 pompes d’affilée', short: '50 pompes', category: 'Sol', tag: '50', level: 1, target: 50, unit: 'reps'),
-  ChallengeDef(id: 'dips20', name: '20 dips d’affilée', short: 'Dips 20 reps', category: 'Barres parallèles', tag: 'DIP', level: 2, target: 20, unit: 'reps'),
-  ChallengeDef(id: 'hollow60', name: 'Hollow hold 1 min', short: 'Hollow 1 min', category: 'Gainage', tag: 'HOL', level: 1, target: 60, unit: 's'),
-  ChallengeDef(id: 'wallhs60', name: 'Handstand au mur 1 min', short: 'Mur 1 min', category: 'Équilibre', tag: 'HS', level: 2, target: 60, unit: 's'),
-  ChallengeDef(id: 'pistol10', name: '10 pistol squats par jambe', short: '10 pistols', category: 'Jambes', tag: 'PIS', level: 3, target: 10, unit: 'reps'),
+  ChallengeDef(id: 'tractions15', name: '15 tractions d’affilée', short: '15 tractions', category: 'Barre fixe', tag: '15', level: 2, target: 15, unit: 'reps', move: 'pullup'),
+  ChallengeDef(id: 'gainage60', name: 'Tenir 1 min en gainage', short: 'Gainage 1 min', category: 'Gainage', tag: '1:00', level: 1, target: 60, unit: 's', move: 'plank'),
+  ChallengeDef(id: 'lsit20', name: 'Tenir 20 s en L-sit', short: 'L-sit 20 s', category: 'Barres parallèles', tag: 'L-sit', level: 2, target: 20, unit: 's', move: 'lsit'),
+  ChallengeDef(id: 'pompes50', name: '50 pompes d’affilée', short: '50 pompes', category: 'Sol', tag: '50', level: 1, target: 50, unit: 'reps', move: 'pushup'),
+  ChallengeDef(id: 'dips20', name: '20 dips d’affilée', short: 'Dips 20 reps', category: 'Barres parallèles', tag: 'DIP', level: 2, target: 20, unit: 'reps', move: 'dips'),
+  ChallengeDef(id: 'hollow60', name: 'Hollow hold 1 min', short: 'Hollow 1 min', category: 'Gainage', tag: 'HOL', level: 1, target: 60, unit: 's', move: 'hollow'),
+  ChallengeDef(id: 'wallhs60', name: 'Handstand au mur 1 min', short: 'Mur 1 min', category: 'Équilibre', tag: 'HS', level: 2, target: 60, unit: 's', move: 'wallhs'),
+  ChallengeDef(id: 'pistol10', name: '10 pistol squats par jambe', short: '10 pistols', category: 'Jambes', tag: 'PIS', level: 3, target: 10, unit: 'reps', move: 'pistol'),
 ];
 
 class ChallengeProgress {
@@ -208,6 +284,8 @@ class AttemptResult {
 String dayKey(DateTime d) =>
     '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
+String stepName(StepDef s) => s.name ?? moveById[s.move]!.name;
+
 int _daysSince(DateTime start) => DateTime.now().difference(start).inDays + 1;
 
 class AppState extends ChangeNotifier {
@@ -243,6 +321,13 @@ class AppState extends ChangeNotifier {
         trophies[trophy.id] = trophy;
       }
       sessionDays.addAll((j['sessions'] as List? ?? []).cast<String>());
+      // Nettoie ce qui ne correspond plus au catalogue (anciennes versions).
+      bool skill(String k) => skillCatalog.any((s) => s.id == k);
+      skillStep.removeWhere((k, _) => !skill(k));
+      skillStarted.removeWhere((k, _) => !skill(k));
+      challenges.removeWhere((k, _) => !challengeCatalog.any((c) => c.id == k));
+      final known = trophyDefs.map((t) => t.id).toSet();
+      trophies.removeWhere((k, _) => !known.contains(k));
     } catch (_) {
       // Données corrompues : on repart de zéro plutôt que de planter.
     }

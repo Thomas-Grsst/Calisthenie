@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../data.dart';
+import '../poses/library.dart';
 import '../theme.dart';
+import '../widgets/pose_view.dart';
 import 'trophies.dart';
 
 class ChallengesScreen extends StatefulWidget {
@@ -344,6 +346,8 @@ class _DiscoverItem extends StatelessWidget {
               Text(def.category.toUpperCase(), style: eyebrow(s.accent)),
               const SizedBox(height: 4),
               Text(def.name.toUpperCase(), style: display(34, height: 1)),
+              const SizedBox(height: 14),
+              SizedBox(height: 180, child: Center(child: MoveAnimation(move: moveById[def.move]!, color: s.accent))),
               const SizedBox(height: 14),
               Text(
                 'Six paliers jusqu’à ${def.fmtUnit(def.target)} : ${def.paliers.join(' · ')}. '
