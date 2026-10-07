@@ -30,28 +30,52 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
         content = [
           if (active.isEmpty)
             Panel(
-              child: Text('Aucun défi en cours. Choisis-en un ci-dessous, sans date limite.',
-                  style: body(14, color: C.muted)),
+              child: Text(
+                'Aucun défi en cours. Choisis-en un ci-dessous, sans date limite.',
+                style: body(14, color: C.muted),
+              ),
             ),
-          for (final c in active) ...[ActiveChallengeCard(def: c), const SizedBox(height: 12)],
+          for (final c in active) ...[
+            ActiveChallengeCard(def: c),
+            const SizedBox(height: 12),
+          ],
           if (discover.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text('À RELEVER', style: display(22, weight: FontWeight.w700)),
             const SizedBox(height: 10),
-            for (final c in discover.take(3)) ...[_DiscoverItem(def: c), const SizedBox(height: 10)],
+            for (final c in discover.take(3)) ...[
+              _DiscoverItem(def: c),
+              const SizedBox(height: 10),
+            ],
           ],
         ];
       case 1:
         content = [
           if (discover.isEmpty)
-            Panel(child: Text('Tu as déjà lancé tous les défis.', style: body(14, color: C.muted))),
-          for (final c in discover) ...[_DiscoverItem(def: c), const SizedBox(height: 10)],
+            Panel(
+              child: Text(
+                'Tu as déjà lancé tous les défis.',
+                style: body(14, color: C.muted),
+              ),
+            ),
+          for (final c in discover) ...[
+            _DiscoverItem(def: c),
+            const SizedBox(height: 10),
+          ],
         ];
       default:
         content = [
           if (done.isEmpty)
-            Panel(child: Text('Pas encore de défi terminé. Ça arrive.', style: body(14, color: C.muted))),
-          for (final c in done) ...[_DoneItem(def: c), const SizedBox(height: 10)],
+            Panel(
+              child: Text(
+                'Pas encore de défi terminé. Ça arrive.',
+                style: body(14, color: C.muted),
+              ),
+            ),
+          for (final c in done) ...[
+            _DoneItem(def: c),
+            const SizedBox(height: 10),
+          ],
         ];
     }
 
@@ -64,10 +88,17 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
           const SizedBox(height: 18),
           Container(
             padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(color: C.surface, borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(
+              color: C.surface,
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Row(
               children: [
-                for (final (i, label) in ['En cours', 'À découvrir', 'Terminés'].indexed)
+                for (final (i, label) in [
+                  'En cours',
+                  'À découvrir',
+                  'Terminés',
+                ].indexed)
                   Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _tab = i),
@@ -79,8 +110,14 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                           color: _tab == i ? C.text : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(label,
-                            style: body(13, color: _tab == i ? C.bg : C.muted, weight: FontWeight.w700)),
+                        child: Text(
+                          label,
+                          style: body(
+                            13,
+                            color: _tab == i ? C.bg : C.muted,
+                            weight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -119,31 +156,59 @@ class ActiveChallengeCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('DÉFI EN COURS · SANS DATE LIMITE', style: eyebrow(s.accent)),
+                    Text(
+                      'DÉFI EN COURS · SANS DATE LIMITE',
+                      style: eyebrow(s.accent),
+                    ),
                     const SizedBox(height: 4),
                     Text(def.name.toUpperCase(), style: display(30, height: 1)),
                     const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () => openMove(context, def.move),
-                      child: Row(children: [
-                        SizedBox(width: 120, child: MoveThumb(move: moveById[def.move]!, color: s.accent, radius: 12)),
-                        const SizedBox(width: 10),
-                        Text('Voir le mouvement →', style: body(13, color: C.muted, weight: FontWeight.w600)),
-                      ]),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 120,
+                            child: MoveThumb(
+                              move: moveById[def.move]!,
+                              color: s.accent,
+                              radius: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Voir le mouvement →',
+                            style: body(
+                              13,
+                              color: C.muted,
+                              weight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              Text.rich(TextSpan(children: [
-                TextSpan(text: '${p.record}', style: display(28)),
-                TextSpan(text: '/${def.target}', style: display(28, color: C.muted2)),
-              ])),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: '${p.record}', style: display(28)),
+                    TextSpan(
+                      text: '/${def.target}',
+                      style: display(28, color: C.muted2),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 14),
-          Text('Paliers franchis${def.timed ? ' (secondes)' : ''}',
-              style: body(12, color: C.muted, weight: FontWeight.w600)),
+          Text(
+            'Paliers franchis${def.timed ? ' (secondes)' : ''}',
+            style: body(12, color: C.muted, weight: FontWeight.w600),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -154,14 +219,22 @@ class ActiveChallengeCard extends StatelessWidget {
                     height: 40,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: p.record >= paliers[i] ? s.accent : (i == nextIndex ? null : C.navBorder),
-                      border: i == nextIndex ? Border.all(color: s.accent, width: 1.5) : null,
+                      color: p.record >= paliers[i]
+                          ? s.accent
+                          : (i == nextIndex ? null : C.navBorder),
+                      border: i == nextIndex
+                          ? Border.all(color: s.accent, width: 1.5)
+                          : null,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '${paliers[i]}',
-                      style: display(18,
-                          color: p.record >= paliers[i] ? C.bg : (i == nextIndex ? s.accent : C.muted2)),
+                      style: display(
+                        18,
+                        color: p.record >= paliers[i]
+                            ? C.bg
+                            : (i == nextIndex ? s.accent : C.muted2),
+                      ),
                     ),
                   ),
                 ),
@@ -178,8 +251,10 @@ class ActiveChallengeCard extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Text('${p.attempts} tentative${p.attempts > 1 ? 's' : ''} · depuis le ${fullDate(p.startedAt)}',
-                  style: body(12, color: C.muted2)),
+              Text(
+                '${p.attempts} tentative${p.attempts > 1 ? 's' : ''} · depuis le ${fullDate(p.startedAt)}',
+                style: body(12, color: C.muted2),
+              ),
               const Spacer(),
               TextButton(
                 onPressed: () => _confirmAbandon(context, s),
@@ -197,10 +272,19 @@ class ActiveChallengeCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Abandonner ce défi ?', style: display(26)),
-        content: Text('Ton record et tes tentatives seront effacés.', style: body(14, color: C.muted)),
+        content: Text(
+          'Ton record et tes tentatives seront effacés.',
+          style: body(14, color: C.muted),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Garder')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Abandonner')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Garder'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Abandonner'),
+          ),
         ],
       ),
     );
@@ -216,20 +300,34 @@ Future<void> logAttemptFlow(BuildContext context, ChallengeDef def) async {
     context: context,
     backgroundColor: C.surface,
     showDragHandle: true,
+    isScrollControlled: true,
+    useSafeArea: true,
     builder: (_) => _AttemptSheet(def: def, initial: start, accent: s.accent),
   );
   if (value == null || !context.mounted) return;
   final res = s.logAttempt(def.id, value);
   if (res.trophy != null) {
     Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => TrophyScreen(trophyId: res.trophy!.id, isNew: true)));
+      MaterialPageRoute(
+        builder: (_) => TrophyScreen(trophyId: res.trophy!.id, isNew: true),
+      ),
+    );
   } else {
-    toast(context, res.improved ? 'Nouveau record : ${def.fmtUnit(value)} !' : 'Tentative notée. Continue !');
+    toast(
+      context,
+      res.improved
+          ? 'Nouveau record : ${def.fmtUnit(value)} !'
+          : 'Tentative notée. Continue !',
+    );
   }
 }
 
 class _AttemptSheet extends StatefulWidget {
-  const _AttemptSheet({required this.def, required this.initial, required this.accent});
+  const _AttemptSheet({
+    required this.def,
+    required this.initial,
+    required this.accent,
+  });
   final ChallengeDef def;
   final int initial;
   final Color accent;
@@ -244,60 +342,69 @@ class _AttemptSheetState extends State<_AttemptSheet> {
   void _add(int d) => setState(() => _v = (_v + d).clamp(0, 9999));
 
   Widget _step(int d) => SizedBox(
-        width: 56,
-        height: 56,
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            side: const BorderSide(color: C.border),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-          onPressed: () => _add(d),
-          child: Text(d > 0 ? '+$d' : '$d', style: display(20)),
-        ),
-      );
+    width: 56,
+    height: 56,
+    child: OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        side: const BorderSide(color: C.border),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      onPressed: () => _add(d),
+      child: Text(d > 0 ? '+$d' : '$d', style: display(20)),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     final def = widget.def;
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('NOTER UNE TENTATIVE', style: eyebrow(widget.accent)),
-            const SizedBox(height: 4),
-            Text(def.name.toUpperCase(), style: display(28, height: 1)),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                _step(-5),
-                const SizedBox(width: 8),
-                _step(-1),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text('$_v', style: display(64, height: 1)),
-                      Text(def.timed ? 'secondes' : 'répétitions', style: body(12, color: C.muted)),
-                    ],
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('NOTER UNE TENTATIVE', style: eyebrow(widget.accent)),
+              const SizedBox(height: 4),
+              Text(def.name.toUpperCase(), style: display(28, height: 1)),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  _step(-5),
+                  const SizedBox(width: 8),
+                  _step(-1),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text('$_v', style: display(64, height: 1)),
+                        Text(
+                          def.timed ? 'secondes' : 'répétitions',
+                          style: body(12, color: C.muted),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                _step(1),
-                const SizedBox(width: 8),
-                _step(5),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text('Objectif : ${def.fmtUnit(def.target)}', textAlign: TextAlign.center, style: body(13, color: C.muted)),
-            const SizedBox(height: 20),
-            BigButton(
-              label: 'Enregistrer',
-              color: widget.accent,
-              onTap: _v > 0 ? () => Navigator.pop(context, _v) : null,
-            ),
-          ],
+                  _step(1),
+                  const SizedBox(width: 8),
+                  _step(5),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Objectif : ${def.fmtUnit(def.target)}',
+                textAlign: TextAlign.center,
+                style: body(13, color: C.muted),
+              ),
+              const SizedBox(height: 20),
+              BigButton(
+                label: 'Enregistrer',
+                color: widget.accent,
+                onTap: _v > 0 ? () => Navigator.pop(context, _v) : null,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -317,7 +424,14 @@ class _DiscoverItem extends StatelessWidget {
       onTap: () => _openDetails(context, s),
       child: Row(
         children: [
-          SizedBox(width: 80, child: MoveThumb(move: moveById[def.move]!, color: s.accent, radius: 10)),
+          SizedBox(
+            width: 80,
+            child: MoveThumb(
+              move: moveById[def.move]!,
+              color: s.accent,
+              radius: 10,
+            ),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -325,7 +439,10 @@ class _DiscoverItem extends StatelessWidget {
               children: [
                 Text(def.name, style: body(15, weight: FontWeight.w700)),
                 const SizedBox(height: 3),
-                Text('${def.category} · objectif ${def.fmtUnit(def.target)}', style: body(12, color: C.muted)),
+                Text(
+                  '${def.category} · objectif ${def.fmtUnit(def.target)}',
+                  style: body(12, color: C.muted),
+                ),
               ],
             ),
           ),
@@ -340,27 +457,61 @@ class _DiscoverItem extends StatelessWidget {
       context: context,
       backgroundColor: C.surface,
       showDragHandle: true,
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(def.category.toUpperCase(), style: eyebrow(s.accent)),
-              const SizedBox(height: 4),
-              Text(def.name.toUpperCase(), style: display(34, height: 1)),
-              const SizedBox(height: 14),
-              SizedBox(height: 180, child: Center(child: hasPhotos(def.move) ? PhotoLoop(move: moveById[def.move]!, color: s.accent) : MoveAnimation(move: moveById[def.move]!, color: s.accent))),
-              const SizedBox(height: 14),
-              Text(
-                'Six paliers jusqu’à ${def.fmtUnit(def.target)} : ${def.paliers.join(' · ')}. '
-                'Note chaque tentative, à ton rythme, sans date limite. '
-                'Atteins l’objectif pour débloquer le trophée.',
-                style: body(14, color: C.muted, height: 1.4),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        def.category.toUpperCase(),
+                        style: eyebrow(s.accent),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        def.name.toUpperCase(),
+                        style: display(34, height: 1),
+                      ),
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        height: 170,
+                        child: Center(
+                          child: hasPhotos(def.move)
+                              ? PhotoLoop(
+                                  move: moveById[def.move]!,
+                                  color: s.accent,
+                                )
+                              : MoveAnimation(
+                                  move: moveById[def.move]!,
+                                  color: s.accent,
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Six paliers jusqu’à ${def.fmtUnit(def.target)} : ${def.paliers.join(' · ')}. '
+                        'Note chaque tentative, à ton rythme, sans date limite. '
+                        'Atteins l’objectif pour débloquer le trophée.',
+                        style: body(14, color: C.muted, height: 1.4),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
-              BigButton(label: 'Commencer le défi', color: s.accent, onTap: () => Navigator.pop(ctx, true)),
+              BigButton(
+                label: 'Commencer le défi',
+                color: s.accent,
+                onTap: () => Navigator.pop(ctx, true),
+              ),
             ],
           ),
         ),
@@ -386,18 +537,31 @@ class _DoneItem extends StatelessWidget {
       borderColor: C.goldBorder,
       radius: 16,
       padding: const EdgeInsets.all(14),
-      onTap: () => Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => TrophyScreen(trophyId: 'c:${def.id}'))),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => TrophyScreen(trophyId: 'c:${def.id}'),
+        ),
+      ),
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(color: C.gold, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: C.gold,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: const Icon(Icons.emoji_events_outlined, color: C.goldInk),
           ),
           const SizedBox(width: 10),
-          SizedBox(width: 72, child: MoveThumb(move: moveById[def.move]!, color: C.gold, radius: 10)),
+          SizedBox(
+            width: 72,
+            child: MoveThumb(
+              move: moveById[def.move]!,
+              color: C.gold,
+              radius: 10,
+            ),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -405,8 +569,10 @@ class _DoneItem extends StatelessWidget {
               children: [
                 Text(def.name, style: body(15, weight: FontWeight.w700)),
                 const SizedBox(height: 3),
-                Text('Relevé le ${fullDate(p.doneAt!)} · record ${def.fmtUnit(p.record)}',
-                    style: body(12, color: C.goldMuted)),
+                Text(
+                  'Relevé le ${fullDate(p.doneAt!)} · record ${def.fmtUnit(p.record)}',
+                  style: body(12, color: C.goldMuted),
+                ),
               ],
             ),
           ),
